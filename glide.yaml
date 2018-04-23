@@ -1,0 +1,4 @@
+package: github.com/joshuakwan/grafana-client
+import:
+- package: github.com/go-resty/resty
+  version: v1.4
