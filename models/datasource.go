@@ -1,26 +1,20 @@
 package models
 
-type DatasourceSuccessfulCreateMessage struct {
-	Message string `json:"message"`
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-}
-
 type JsonData struct {
 	KeepCookies []string `json:"keepCookies" yaml:"keepCookies"`
 }
 
 type Datasource struct {
-	ID          int      `json:"id"`
-	OrgID       int      `json:"orgId"`
-	Name        string   `json:"name"`
-	Type        string   `json:"type"`
-	TypeLogoURL string   `json:"typeLogoUrl"`
-	Access      string   `json:"access"`
-	URL         string   `json:"url"`
-	Database    string   `json:"database"`
-	BasicAuth   bool     `json:"basicAuth"`
-	IsDefault   bool     `json:"isDefault"`
-	JsonData    JsonData `json:"jsonData"`
-	ReadOnly    bool     `json:"readOnly"`
+	ID          int      `json:"id,omitempty"`
+	OrgID       int      `json:"orgId,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	Type        string   `json:"type,omitempty"`
+	TypeLogoURL string   `json:"typeLogoUrl,omitempty"`
+	Access      string   `json:"access,omitempty"`
+	URL         string   `json:"url,omitempty"`
+	Database    string   `json:"database,omitempty"`
+	BasicAuth   bool     `json:"basicAuth,omitempty"`
+	IsDefault   bool     `json:"isDefault,omitempty"`
+	JsonData    JsonData `json:"jsonData,omitempty"`
+	ReadOnly    bool     `json:"readOnly,omitempty"`
 }

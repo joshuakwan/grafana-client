@@ -1,28 +1,31 @@
 package models
 
-import (
-	"time"
-)
+import "github.com/bitly/go-simplejson"
 
 type Meta struct {
-	Type      string `json:"type"`
-	CanSave   bool   `json:"canSave"`
-	CanEdit   bool   `json:"canEdit"`
-	CanStar   bool   `json:"canStar"`
-	Slug      string `json:"slug"`
-	Expires   string `json:"expires"`
-	Created   string `json:"created"`
-	Updated   string `json:"updated"`
-	UpdatedBy string `json:"updatedBy"`
-	CreatedBy string `json:"createdBy"`
-	Version   int    `json:"version"`
+	Type        string `json:"type,omitempty"`
+	CanSave     bool   `json:"canSave,omitempty"`
+	CanEdit     bool   `json:"canEdit,omitempty"`
+	CanStar     bool   `json:"canStar,omitempty"`
+	Slug        string `json:"slug,omitempty"`
+	Expires     string `json:"expires,omitempty"`
+	Created     string `json:"created,omitempty"`
+	Updated     string `json:"updated,omitempty"`
+	UpdatedBy   string `json:"updatedBy,omitempty"`
+	CreatedBy   string `json:"createdBy,omitempty"`
+	Version     int    `json:"version,omitempty"`
+	HasAcl      bool   `json:"hasAcl,omitempty"`
+	IsFolder    bool   `json:"isFolder,omitempty"`
+	FolderID    int    `json:"folderId,omitempty"`
+	FolderTitle string `json:"folderTitle,omitempty"`
+	FolderURL   string `json:"folderUrl,omitempty"`
 }
 
 type PanelGridPosition struct {
-	H string `json:"h"`
-	W string `json:"w"`
-	X string `json:"x"`
-	Y string `json:"y"`
+	H int `json:"h,omitempty"`
+	W int `json:"w,omitempty"`
+	X int `json:"x,omitempty"`
+	Y int `json:"y,omitempty"`
 }
 
 type PanelLegend struct {
@@ -106,39 +109,39 @@ type PanelAlert struct {
 }
 
 type PanelThreshold struct {
-	ColorMode string `json:"colorMode"`
-	Fill      bool   `json:"fill"`
-	Line      bool   `json:"line"`
-	Op        string `json:"op"`
-	Value     int64  `json:"value"`
+	ColorMode string `json:"colorMode,omitempty"`
+	Fill      bool   `json:"fill,omitempty"`
+	Line      bool   `json:"line,omitempty"`
+	Op        string `json:"op,omitempty"`
+	Value     int64  `json:"value,omitempty"`
 }
 
 type Panel struct {
-	Title           string             `json:"title"`
-	Datasource      string             `json:"datasource"`
-	Type            string             `json:"type"`
-	Format          string             `json:"format"`
-	Fill            int                `json:"fill"`
-	Linewidth       int                `json:"linewidth"`
-	Lines           bool               `json:"lines"`
-	Stack           bool               `json:"stack"`
-	Decimals        int                `json:"decimals"`
-	ValueName       string             `json:"valueName"`
-	NullPointMode   string             `json:"nullPointMode"`
-	Repeat          string             `json:"repeat"`
-	RepeatDirection string             `json:"repeatDirection"`
-	MinSpan         int                `json:"minSpan"`
-	GridPos         *PanelGridPosition `json:"gridPos"`
-	Legend          *PanelLegend       `json:"legend"`
-	Tooltip         *PanelTooltip      `json:"tooltip"`
-	Targets         []*Target          `json:"targets"`
-	XAxis           *PanelXAxis        `json:"xAxis"`
-	YAxes           []*PanelYAxis      `json:"yAxes"`
-	Editable        bool               `json:"editable"`
-	Error           bool               `json:"error"`
+	Title           string             `json:"title,omitempty"`
+	Datasource      string             `json:"datasource,omitempty"`
+	Type            string             `json:"type,omitempty"`
+	Format          string             `json:"format,omitempty"`
+	Fill            int                `json:"fill,omitempty"`
+	Linewidth       int                `json:"linewidth,omitempty"`
+	Lines           bool               `json:"lines,omitempty"`
+	Stack           bool               `json:"stack,omitempty"`
+	Decimals        int                `json:"decimals,omitempty"`
+	ValueName       string             `json:"valueName,omitempty"`
+	NullPointMode   string             `json:"nullPointMode,omitempty"`
+	Repeat          string             `json:"repeat,omitempty"`
+	RepeatDirection string             `json:"repeatDirection,omitempty"`
+	MinSpan         int                `json:"minSpan,omitempty"`
+	GridPos         *PanelGridPosition `json:"gridPos,omitempty"`
+	Legend          *PanelLegend       `json:"legend,omitempty"`
+	Tooltip         *PanelTooltip      `json:"tooltip,omitempty"`
+	Targets         []*Target          `json:"targets,omitempty"`
+	XAxis           *PanelXAxis        `json:"xAxis,omitempty"`
+	YAxes           []*PanelYAxis      `json:"yAxes,omitempty"`
+	Editable        bool               `json:"editable,omitempty"`
+	Error           bool               `json:"error,omitempty"`
 	ID              int                `json:"id"`
-	Alert           PanelAlert         `json:"alert"`
-	Thresholds      []PanelThreshold   `json:"thresholds"`
+	Alert           *PanelAlert        `json:"alert,omitempty"`
+	Thresholds      []*PanelThreshold  `json:"thresholds,omitempty"`
 }
 
 type TemplateListCurrent struct {
@@ -170,22 +173,43 @@ type Template struct {
 	List []*TemplateList `json:"list"`
 }
 
+type Time struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
 type Dashboard struct {
-	ID            int       `json:"id"`
-	UID           string    `json:"uid"`
-	Version       int       `json:"version"`
-	Timezone      string    `json:"timezone"`
-	Tags          []string  `json:"tags"`
-	Title         string    `json:"title"`
-	Datasource    string    `json:"datasource"`
-	Refresh       string    `json:"refresh"`
-	SchemaVersion int       `json:"schemaVersion"`
-	Time          time.Time `json:"time"`
-	Panels        []*Panel  `json:"panels"`
-	Templating    Template  `json:"templating"`
+	ID            int      `json:"id"`
+	Timezone      string   `json:"timezone"`
+	Tags          []string `json:"tags"`
+	Datasource    string   `json:"datasource"`
+	Refresh       string   `json:"refresh"`
+	SchemaVersion int      `json:"schemaVersion"`
+	Time          Time     `json:"time"`
+	//Panels        []*Panel `json:"panels"`
+	Panels     *simplejson.Json `json:"panels"`
+	Templating Template         `json:"templating"`
+	Title      string           `json:"title"`
+	UID        string           `json:"uid"`
+	Version    int              `json:"version"`
 }
 
 type GrafanaDashboard struct {
 	Meta      *Meta      `json:"meta"`
 	Dashboard *Dashboard `json:"dashboard"`
+}
+
+type SearchResult struct {
+	ID          int      `json:"id"`
+	UID         string   `json:"uid"`
+	Title       string   `json:"title"`
+	URL         string   `json:"url"`
+	Type        string   `json:"type"`
+	Tags        []string `json:"tags"`
+	IsStarred   bool     `json:"isStarred"`
+	FolderID    int      `json:"folderId"`
+	FolderUID   string   `json:"folderUid"`
+	FolderTitle string   `json:"folderTitle"`
+	FolderURL   string   `json:"folderUrl"`
+	URI         string   `json:"uri"` // deprecated in Grafana v5.0
 }
