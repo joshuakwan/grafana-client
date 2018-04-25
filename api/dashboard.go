@@ -121,3 +121,66 @@ func (client *Client) DeleteDashboardByUID(uid string) (*models.DashboardSuccess
 
 	return &message, nil
 }
+
+func (client *Client) adminPostDashboard(orgID int, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	err := client.AdminSwitchOrganization(orgID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
+		SetBody(dashboard).Post(client.GrafanaURL + "api/dashboards/db/")
+	if err != nil {
+		return nil, err
+	}
+
+	var message models.DashboardSuccessfulPostMessage
+	err = json.Unmarshal(resp.Body(), &message)
+	if err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
+
+func (client *Client) AdminCreateDashboard(orgID int, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	return client.adminPostDashboard(orgID, dashboard)
+}
+
+func (client *Client) AdminCreateDashboardFromJSON(orgID int, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
+	var dashboard models.GrafanaDashboard
+
+	err := json.Unmarshal(jsonData, &dashboard)
+	if err != nil {
+		return nil, err
+	}
+
+	if dashboard.Meta == nil {
+		dashboard.Meta = &models.Meta{CanSave: true, Slug: dashboard.Dashboard.Title}
+	}
+
+	return client.adminPostDashboard(orgID, &dashboard)
+}
+
+func (client *Client) AdminUpdateDashboard(orgID int, uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	dashboard.Dashboard.UID = uid
+	targetDashboard, err := client.GetDashboardByUID(uid)
+	if err != nil {
+		return nil, err
+	}
+
+	dashboard.Dashboard.Version = targetDashboard.Dashboard.Version
+
+	return client.adminPostDashboard(orgID, dashboard)
+}
+
+func (client *Client) AdminUpdateDashboardFromJSON(orgID int, uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
+	var dashboard models.GrafanaDashboard
+
+	err := json.Unmarshal(jsonData, &dashboard)
+	if err != nil {
+		return nil, err
+	}
+
+	return client.AdminUpdateDashboard(orgID, uid, &dashboard)
+}

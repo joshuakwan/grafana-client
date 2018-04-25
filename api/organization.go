@@ -5,7 +5,6 @@ import (
 	"github.com/go-resty/resty"
 	"encoding/json"
 	"errors"
-	"log"
 	"strconv"
 )
 
@@ -43,30 +42,38 @@ func (client *Client) CreateOrganization(organization *models.GrafanaOrganizatio
 	return &message, nil
 }
 
-// curl -X POST http://admin:admin@localhost:3000/api/user/using/<id of new org>
-// curl -X POST
-//      -H "Content-Type: application/json"
-//      -d '{"name":"apikeycurl", "role": "Admin"}'
-//      http://admin:admin@localhost:3000/api/auth/keys
-func (client *Client) CreateOrganizationAdminKey(orgID int) (*models.APIKeySuccessfulCreateMessage, error) {
+func (client *Client) AdminSwitchOrganization(orgID int) error {
 	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
 		Post(client.GrafanaURL + "api/user/using/" + strconv.Itoa(orgID))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// {"message":"Active organization changed"}
 	var messageOrg models.Message
 	err = json.Unmarshal(resp.Body(), &messageOrg)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if messageOrg.Message != "Active organization changed" {
-		log.Println(messageOrg.Message)
-		return nil, errors.New("Fail to switch active organization for the admin")
+		return errors.New("Fail to switch active organization for the admin")
 	}
 
-	resp, err = resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
+	return nil
+}
+
+// curl -X POST http://admin:admin@localhost:3000/api/user/using/<id of new org>
+// curl -X POST
+//      -H "Content-Type: application/json"
+//      -d '{"name":"apikeycurl", "role": "Admin"}'
+//      http://admin:admin@localhost:3000/api/auth/keys
+func (client *Client) CreateOrganizationAdminKey(orgID int) (*models.APIKeySuccessfulCreateMessage, error) {
+	err := client.AdminSwitchOrganization(orgID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
 		SetBody(`{"name":"adminIntegrationKey", "role":"Admin"}`).
 		SetHeader("Content-Type", "application/json").
 		Post(client.GrafanaURL + "api/auth/keys")
