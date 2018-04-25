@@ -8,6 +8,7 @@ import (
 
 func (client *Client) CreateGlobalUser(user *models.User) (*models.UserSuccessfulCreateMessage, error) {
 	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
+		SetHeader("Content-Type","application/json").
 		SetBody(user).Post(client.GrafanaURL + "api/admin/users")
 
 	if err != nil {
