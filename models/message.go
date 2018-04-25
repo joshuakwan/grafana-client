@@ -5,7 +5,7 @@ type Message struct {
 }
 
 type OrganizationSuccessfulPostMessage struct {
-	OrgID   int `json:"orgId"`
+	OrgID   int    `json:"orgId"`
 	Message string `json:"message"`
 }
 
@@ -26,4 +26,14 @@ type DatasourceSuccessfulCreateMessage struct {
 	Message string `json:"message"`
 	ID      int    `json:"id"`
 	Name    string `json:"name"`
+}
+
+type UserSuccessfulCreateMessage struct {
+	ID      int    `json:"id"`
+	Message string `json:"message"`
+}
+
+type APIKeySuccessfulCreateMessage struct {
+	Name string `json:"name"`
+	Key  string `json:"key"`
 }
