@@ -8,9 +8,9 @@ import (
 	"strconv"
 )
 
-func (client *Client) GetOrganization(orgName string) (*models.GrafanaOrganization, error) {
-	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
-		Get(client.GrafanaURL + "api/orgs/name/" + orgName)
+func (c *Client) GetOrganization(orgName string) (*models.GrafanaOrganization, error) {
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
+		Get(c.GrafanaURL + "api/orgs/name/" + orgName)
 	if err != nil {
 		return nil, err
 	}
@@ -24,9 +24,9 @@ func (client *Client) GetOrganization(orgName string) (*models.GrafanaOrganizati
 	return org, nil
 }
 
-func (client *Client) CreateOrganization(organization *models.GrafanaOrganization) (*models.OrganizationSuccessfulPostMessage, error) {
-	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
-		SetBody(organization).Post(client.GrafanaURL + "api/orgs/")
+func (c *Client) CreateOrganization(organization *models.GrafanaOrganization) (*models.OrganizationSuccessfulPostMessage, error) {
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
+		SetBody(organization).Post(c.GrafanaURL + "api/orgs/")
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +40,9 @@ func (client *Client) CreateOrganization(organization *models.GrafanaOrganizatio
 	return &message, nil
 }
 
-func (client *Client) DeleteOrganization(orgID int) (*models.Message, error) {
-	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
-		Delete(client.GrafanaURL + "api/orgs/" + strconv.Itoa(orgID))
+func (c *Client) DeleteOrganization(orgID int) (*models.Message, error) {
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
+		Delete(c.GrafanaURL + "api/orgs/" + strconv.Itoa(orgID))
 	if err != nil {
 		return nil, err
 	}
@@ -56,9 +56,9 @@ func (client *Client) DeleteOrganization(orgID int) (*models.Message, error) {
 	return &message, nil
 }
 
-func (client *Client) AdminSwitchOrganization(orgID int) error {
-	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
-		Post(client.GrafanaURL + "api/user/using/" + strconv.Itoa(orgID))
+func (c *Client) AdminSwitchOrganization(orgID int) error {
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
+		Post(c.GrafanaURL + "api/user/using/" + strconv.Itoa(orgID))
 	if err != nil {
 		return err
 	}
@@ -81,16 +81,16 @@ func (client *Client) AdminSwitchOrganization(orgID int) error {
 //      -H "Content-Type: application/json"
 //      -d '{"name":"apikeycurl", "role": "Admin"}'
 //      http://admin:admin@localhost:3000/api/auth/keys
-func (client *Client) CreateOrganizationAdminKey(orgID int) (*models.APIKeySuccessfulCreateMessage, error) {
-	err := client.AdminSwitchOrganization(orgID)
+func (c *Client) CreateOrganizationAdminKey(orgID int) (*models.APIKeySuccessfulCreateMessage, error) {
+	err := c.AdminSwitchOrganization(orgID)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
 		SetBody(`{"name":"adminIntegrationKey", "role":"Admin"}`).
 		SetHeader("Content-Type", "application/json").
-		Post(client.GrafanaURL + "api/auth/keys")
+		Post(c.GrafanaURL + "api/auth/keys")
 	if err != nil {
 		return nil, err
 	}
@@ -110,11 +110,11 @@ func (client *Client) CreateOrganizationAdminKey(orgID int) (*models.APIKeySucce
 //  "role":"Viewer"
 // }
 // Use admin basic auth here to make things simple
-func (client *Client) AdminAddOrganizationUser(orgID int, userLogin string, role string) (*models.Message, error) {
-	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
+func (c *Client) AdminAddOrganizationUser(orgID int, userLogin string, role string) (*models.Message, error) {
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
 		SetBody(map[string]interface{}{"loginOrEmail": userLogin, "role": role}).
 		SetHeader("Content-Type", "application/json").
-		Post(client.GrafanaURL + "api/orgs/" + strconv.Itoa(orgID) + "/users")
+		Post(c.GrafanaURL + "api/orgs/" + strconv.Itoa(orgID) + "/users")
 	if err != nil {
 		return nil, err
 	}

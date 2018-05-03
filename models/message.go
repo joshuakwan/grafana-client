@@ -22,7 +22,7 @@ type DashboardSuccessfulPostMessage struct {
 	Slug    string `json:"slug"`
 }
 
-type DatasourceSuccessfulCreateMessage struct {
+type DatasourceMessage struct {
 	Message string `json:"message"`
 	ID      int    `json:"id"`
 	Name    string `json:"name"`

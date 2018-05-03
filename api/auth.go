@@ -9,9 +9,9 @@ import (
 
 // Api Keys
 //   GET /api/auth/keys
-func (client *Client) AuthGetAPIKeys() ([]*models.APIKey, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, client.BearerToken).
-		Get(client.GrafanaURL + "api/auth/keys")
+func (c *Client) AuthGetAPIKeys() ([]*models.APIKey, error) {
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+		Get(c.GrafanaURL + "api/auth/keys")
 	if err != nil {
 		return nil, err
 	}
@@ -26,11 +26,11 @@ func (client *Client) AuthGetAPIKeys() ([]*models.APIKey, error) {
 
 // Create API Key
 //   POST /api/auth/keys
-func (client *Client) AuthCreateAPIKey(keyName string, role string) (*models.APIKeySuccessfulCreateMessage, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, client.BearerToken).
+func (c *Client) AuthCreateAPIKey(keyName string, role string) (*models.APIKeySuccessfulCreateMessage, error) {
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
 		SetBody(fmt.Sprintf(`{"name":"%s", "role":"%s"}`, keyName, role)).
 		SetHeader("Content-Type", "application/json").
-		Post(client.GrafanaURL + "api/auth/keys")
+		Post(c.GrafanaURL + "api/auth/keys")
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +45,9 @@ func (client *Client) AuthCreateAPIKey(keyName string, role string) (*models.API
 
 // Delete API Key
 //   DELETE /api/auth/keys/:id
-func (client *Client) AuthDeleteAPIKey(keyID int) (*models.Message, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, client.BearerToken).
-		Delete(client.GrafanaURL + fmt.Sprintf("api/auth/keys/%d", keyID))
+func (c *Client) AuthDeleteAPIKey(keyID int) (*models.Message, error) {
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+		Delete(c.GrafanaURL + fmt.Sprintf("api/auth/keys/%d", keyID))
 	if err != nil {
 		return nil, err
 	}

@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 )
 
-func (client *Client) GetDashboardByUID(uid string) (*models.GrafanaDashboard, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, client.BearerToken).
-		Get(client.GrafanaURL + "api/dashboards/uid/" + uid)
+func (c *Client) GetDashboardByUID(uid string) (*models.GrafanaDashboard, error) {
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+		Get(c.GrafanaURL + "api/dashboards/uid/" + uid)
 	if err != nil {
 		return nil, err
 	}
@@ -22,13 +22,13 @@ func (client *Client) GetDashboardByUID(uid string) (*models.GrafanaDashboard, e
 	return dashboard, nil
 }
 
-func (client *Client) GetDashboardUID(dashboardTitle string, dashboardFolderTitle string) (string, error) {
+func (c *Client) GetDashboardUID(dashboardTitle string, dashboardFolderTitle string) (string, error) {
 	var results []*models.SearchResult
 	var uid string
 
-	resp, err := resty.R().SetHeader(AuthHeader, client.BearerToken).
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
 		SetQueryParam("query", dashboardTitle).
-		Get(client.GrafanaURL + "api/search/")
+		Get(c.GrafanaURL + "api/search/")
 	if err != nil {
 		return "", err
 	}
@@ -47,9 +47,9 @@ func (client *Client) GetDashboardUID(dashboardTitle string, dashboardFolderTitl
 	return uid, nil
 }
 
-func (client *Client) postDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, client.BearerToken).
-		SetBody(dashboard).Post(client.GrafanaURL + "api/dashboards/db/")
+func (c *Client) postDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+		SetBody(dashboard).Post(c.GrafanaURL + "api/dashboards/db/")
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (client *Client) postDashboard(dashboard *models.GrafanaDashboard) (*models
 	return &message, nil
 }
 
-func (client *Client) CreateDashboardFromJSON(jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
+func (c *Client) CreateDashboardFromJSON(jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
 	var dashboard models.GrafanaDashboard
 
 	err := json.Unmarshal(jsonData, &dashboard)
@@ -75,10 +75,10 @@ func (client *Client) CreateDashboardFromJSON(jsonData []byte) (*models.Dashboar
 		dashboard.Meta = &models.Meta{CanSave: true, Slug: dashboard.Dashboard.Title}
 	}
 
-	return client.postDashboard(&dashboard)
+	return c.postDashboard(&dashboard)
 }
 
-func (client *Client) UpdateDashboardFromJSON(uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
+func (c *Client) UpdateDashboardFromJSON(uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
 	var dashboard models.GrafanaDashboard
 
 	err := json.Unmarshal(jsonData, &dashboard)
@@ -86,28 +86,28 @@ func (client *Client) UpdateDashboardFromJSON(uid string, jsonData []byte) (*mod
 		return nil, err
 	}
 
-	return client.UpdateDashboard(uid, &dashboard)
+	return c.UpdateDashboard(uid, &dashboard)
 }
 
-func (client *Client) CreateDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
-	return client.postDashboard(dashboard)
+func (c *Client) CreateDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	return c.postDashboard(dashboard)
 }
 
-func (client *Client) UpdateDashboard(uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+func (c *Client) UpdateDashboard(uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
 	dashboard.Dashboard.UID = uid
-	targetDashboard, err := client.GetDashboardByUID(uid)
+	targetDashboard, err := c.GetDashboardByUID(uid)
 	if err != nil {
 		return nil, err
 	}
 
 	dashboard.Dashboard.Version = targetDashboard.Dashboard.Version
 
-	return client.postDashboard(dashboard)
+	return c.postDashboard(dashboard)
 }
 
-func (client *Client) DeleteDashboardByUID(uid string) (*models.DashboardSuccessfulDeleteMessage, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, client.BearerToken).
-		Delete(client.GrafanaURL + "api/dashboards/uid/" + uid)
+func (c *Client) DeleteDashboardByUID(uid string) (*models.DashboardSuccessfulDeleteMessage, error) {
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+		Delete(c.GrafanaURL + "api/dashboards/uid/" + uid)
 
 	if err != nil {
 		return nil, err
@@ -122,14 +122,14 @@ func (client *Client) DeleteDashboardByUID(uid string) (*models.DashboardSuccess
 	return &message, nil
 }
 
-func (client *Client) adminPostDashboard(orgID int, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
-	err := client.AdminSwitchOrganization(orgID)
+func (c *Client) adminPostDashboard(orgID int, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	err := c.AdminSwitchOrganization(orgID)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
-		SetBody(dashboard).Post(client.GrafanaURL + "api/dashboards/db/")
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
+		SetBody(dashboard).Post(c.GrafanaURL + "api/dashboards/db/")
 	if err != nil {
 		return nil, err
 	}
@@ -143,11 +143,11 @@ func (client *Client) adminPostDashboard(orgID int, dashboard *models.GrafanaDas
 	return &message, nil
 }
 
-func (client *Client) AdminCreateDashboard(orgID int, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
-	return client.adminPostDashboard(orgID, dashboard)
+func (c *Client) AdminCreateDashboard(orgID int, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	return c.adminPostDashboard(orgID, dashboard)
 }
 
-func (client *Client) AdminCreateDashboardFromJSON(orgID int, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
+func (c *Client) AdminCreateDashboardFromJSON(orgID int, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
 	var dashboard models.GrafanaDashboard
 
 	err := json.Unmarshal(jsonData, &dashboard)
@@ -159,22 +159,22 @@ func (client *Client) AdminCreateDashboardFromJSON(orgID int, jsonData []byte) (
 		dashboard.Meta = &models.Meta{CanSave: true, Slug: dashboard.Dashboard.Title}
 	}
 
-	return client.adminPostDashboard(orgID, &dashboard)
+	return c.adminPostDashboard(orgID, &dashboard)
 }
 
-func (client *Client) AdminUpdateDashboard(orgID int, uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+func (c *Client) AdminUpdateDashboard(orgID int, uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
 	dashboard.Dashboard.UID = uid
-	targetDashboard, err := client.GetDashboardByUID(uid)
+	targetDashboard, err := c.GetDashboardByUID(uid)
 	if err != nil {
 		return nil, err
 	}
 
 	dashboard.Dashboard.Version = targetDashboard.Dashboard.Version
 
-	return client.adminPostDashboard(orgID, dashboard)
+	return c.adminPostDashboard(orgID, dashboard)
 }
 
-func (client *Client) AdminUpdateDashboardFromJSON(orgID int, uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
+func (c *Client) AdminUpdateDashboardFromJSON(orgID int, uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
 	var dashboard models.GrafanaDashboard
 
 	err := json.Unmarshal(jsonData, &dashboard)
@@ -182,17 +182,17 @@ func (client *Client) AdminUpdateDashboardFromJSON(orgID int, uid string, jsonDa
 		return nil, err
 	}
 
-	return client.AdminUpdateDashboard(orgID, uid, &dashboard)
+	return c.AdminUpdateDashboard(orgID, uid, &dashboard)
 }
 
-func (client *Client) AdminDeleteDashboardByUID(orgID int, uid string) (*models.DashboardSuccessfulDeleteMessage, error) {
-	err := client.AdminSwitchOrganization(orgID)
+func (c *Client) AdminDeleteDashboardByUID(orgID int, uid string) (*models.DashboardSuccessfulDeleteMessage, error) {
+	err := c.AdminSwitchOrganization(orgID)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
-		Delete(client.GrafanaURL + "api/dashboards/uid/" + uid)
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
+		Delete(c.GrafanaURL + "api/dashboards/uid/" + uid)
 
 	if err != nil {
 		return nil, err
