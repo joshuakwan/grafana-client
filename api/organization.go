@@ -109,9 +109,8 @@ func (client *Client) CreateOrganizationAdminKey(orgID int) (*models.APIKeySucce
 //  "loginOrEmail":"user",
 //  "role":"Viewer"
 // }
-// DO not follow the doc
 // Use admin basic auth here to make things simple
-func (client *Client) AddOrganizationUser(orgID int, userLogin string, role string) (*models.Message, error) {
+func (client *Client) AdminAddOrganizationUser(orgID int, userLogin string, role string) (*models.Message, error) {
 	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
 		SetBody(map[string]interface{}{"loginOrEmail": userLogin, "role": role}).
 		SetHeader("Content-Type", "application/json").

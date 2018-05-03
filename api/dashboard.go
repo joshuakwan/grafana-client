@@ -184,3 +184,25 @@ func (client *Client) AdminUpdateDashboardFromJSON(orgID int, uid string, jsonDa
 
 	return client.AdminUpdateDashboard(orgID, uid, &dashboard)
 }
+
+func (client *Client) AdminDeleteDashboardByUID(orgID int, uid string) (*models.DashboardSuccessfulDeleteMessage, error) {
+	err := client.AdminSwitchOrganization(orgID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
+		Delete(client.GrafanaURL + "api/dashboards/uid/" + uid)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var message models.DashboardSuccessfulDeleteMessage
+	err = json.Unmarshal(resp.Body(), &message)
+	if err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
