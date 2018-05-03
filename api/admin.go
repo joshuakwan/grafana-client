@@ -10,9 +10,9 @@ import (
 
 // Settings
 //   GET /api/admin/settings (basic auth)
-func (c *Client) AdminGetSettings() (string, error) {
-	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
-		Get(c.GrafanaURL + "api/admin/settings")
+func (client *Client) AdminGetSettings() (string, error) {
+	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
+		Get(client.GrafanaURL + "api/admin/settings")
 	if resp.StatusCode() != 200 {
 		return "", errors.New("request failed")
 	}
@@ -21,9 +21,9 @@ func (c *Client) AdminGetSettings() (string, error) {
 
 // Grafana Stats
 //   GET /api/admin/stats (basic auth)
-func (c *Client) AdminGetStats() (string, error) {
-	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
-		Get(c.GrafanaURL + "api/admin/stats")
+func (client *Client) AdminGetStats() (string, error) {
+	resp, err := resty.R().SetBasicAuth(client.AdminUser, client.AdminPassword).
+		Get(client.GrafanaURL + "api/admin/stats")
 	if resp.StatusCode() != 200 {
 		return "", errors.New("request failed")
 	}
