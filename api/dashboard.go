@@ -6,6 +6,63 @@ import (
 	"encoding/json"
 )
 
+func (c *Client) postDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+		SetBody(dashboard).Post(c.GrafanaURL + "api/dashboards/db/")
+	if err != nil {
+		return nil, err
+	}
+
+	var message models.DashboardSuccessfulPostMessage
+	err = json.Unmarshal(resp.Body(), &message)
+	if err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
+
+func (c *Client) CreateDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	return c.postDashboard(dashboard)
+}
+
+func (c *Client) CreateDashboardFromJSON(jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
+	var dashboard models.GrafanaDashboard
+
+	if err := json.Unmarshal(jsonData, &dashboard); err != nil {
+		return nil, err
+	}
+
+	if dashboard.Meta == nil {
+		dashboard.Meta = &models.Meta{CanSave: true, Slug: dashboard.Dashboard.Title}
+	}
+
+	return c.postDashboard(&dashboard)
+}
+
+func (c *Client) UpdateDashboard(uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+	dashboard.Dashboard.UID = uid
+	targetDashboard, err := c.GetDashboardByUID(uid)
+	if err != nil {
+		return nil, err
+	}
+
+	dashboard.Dashboard.Version = targetDashboard.Dashboard.Version
+
+	return c.postDashboard(dashboard)
+}
+
+func (c *Client) UpdateDashboardFromJSON(uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
+	var dashboard models.GrafanaDashboard
+
+	err := json.Unmarshal(jsonData, &dashboard)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.UpdateDashboard(uid, &dashboard)
+}
+
 func (c *Client) GetDashboardByUID(uid string) (*models.GrafanaDashboard, error) {
 	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/dashboards/uid/" + uid)
@@ -14,8 +71,7 @@ func (c *Client) GetDashboardByUID(uid string) (*models.GrafanaDashboard, error)
 	}
 
 	var dashboard *models.GrafanaDashboard
-	err = json.Unmarshal(resp.Body(), &dashboard)
-	if err != nil {
+	if err = json.Unmarshal(resp.Body(), &dashboard); err != nil {
 		return nil, err
 	}
 
@@ -33,12 +89,11 @@ func (c *Client) GetDashboardUID(dashboardTitle string, dashboardFolderTitle str
 		return "", err
 	}
 
-	err = json.Unmarshal(resp.Body(), &results)
-	if err != nil {
+	if err = json.Unmarshal(resp.Body(), &results); err != nil {
 		return "", err
 	}
 
-	for _, result := range (results) {
+	for _, result := range results {
 		if result.FolderTitle == dashboardFolderTitle {
 			uid = result.UID
 		}
@@ -47,68 +102,24 @@ func (c *Client) GetDashboardUID(dashboardTitle string, dashboardFolderTitle str
 	return uid, nil
 }
 
-func (c *Client) postDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
+func (c *Client) GetDashboardTags() ([]*models.TagResult, error) {
 	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
-		SetBody(dashboard).Post(c.GrafanaURL + "api/dashboards/db/")
+		Get(c.GrafanaURL + "api/dashboards/tags")
 	if err != nil {
 		return nil, err
 	}
 
-	var message models.DashboardSuccessfulPostMessage
-	err = json.Unmarshal(resp.Body(), &message)
-	if err != nil {
+	var results []*models.TagResult
+	if err = json.Unmarshal(resp.Body(), &results); err != nil {
 		return nil, err
 	}
 
-	return &message, nil
-}
-
-func (c *Client) CreateDashboardFromJSON(jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
-	var dashboard models.GrafanaDashboard
-
-	err := json.Unmarshal(jsonData, &dashboard)
-	if err != nil {
-		return nil, err
-	}
-
-	if dashboard.Meta == nil {
-		dashboard.Meta = &models.Meta{CanSave: true, Slug: dashboard.Dashboard.Title}
-	}
-
-	return c.postDashboard(&dashboard)
-}
-
-func (c *Client) UpdateDashboardFromJSON(uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
-	var dashboard models.GrafanaDashboard
-
-	err := json.Unmarshal(jsonData, &dashboard)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.UpdateDashboard(uid, &dashboard)
-}
-
-func (c *Client) CreateDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
-	return c.postDashboard(dashboard)
-}
-
-func (c *Client) UpdateDashboard(uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
-	dashboard.Dashboard.UID = uid
-	targetDashboard, err := c.GetDashboardByUID(uid)
-	if err != nil {
-		return nil, err
-	}
-
-	dashboard.Dashboard.Version = targetDashboard.Dashboard.Version
-
-	return c.postDashboard(dashboard)
+	return results, nil
 }
 
 func (c *Client) DeleteDashboardByUID(uid string) (*models.DashboardSuccessfulDeleteMessage, error) {
 	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
 		Delete(c.GrafanaURL + "api/dashboards/uid/" + uid)
-
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +132,8 @@ func (c *Client) DeleteDashboardByUID(uid string) (*models.DashboardSuccessfulDe
 
 	return &message, nil
 }
+
+////////////// TODO
 
 func (c *Client) adminPostDashboard(orgID int, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
 	err := c.AdminSwitchOrganization(orgID)

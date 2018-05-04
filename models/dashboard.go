@@ -213,3 +213,8 @@ type SearchResult struct {
 	FolderURL   string   `json:"folderUrl"`
 	URI         string   `json:"uri"` // deprecated in Grafana v5.0
 }
+
+type TagResult struct {
+	Term  string `json:"term"`
+	Count int    `json:"count"`
+}
