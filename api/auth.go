@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/joshuakwan/grafana-client/models"
-	"github.com/go-resty/resty"
 	"encoding/json"
 	"fmt"
+	"github.com/go-resty/resty"
+	"github.com/joshuakwan/grafana-client/models"
 )
 
 // Api Keys

@@ -1,11 +1,18 @@
 package api
 
 import (
-	"github.com/joshuakwan/grafana-client/models"
-	"github.com/go-resty/resty"
 	"encoding/json"
+	"github.com/go-resty/resty"
+	"github.com/joshuakwan/grafana-client/models"
 )
 
+/*
+200 – Created
+400 – Errors (invalid json, missing or invalid fields, etc)
+401 – Unauthorized
+403 – Access denied
+412 – Precondition failed
+*/
 func (c *Client) postDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
 	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
 		SetBody(dashboard).Post(c.GrafanaURL + "api/dashboards/db/")

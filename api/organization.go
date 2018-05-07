@@ -1,14 +1,54 @@
 package api
 
 import (
-	"github.com/joshuakwan/grafana-client/models"
-	"github.com/go-resty/resty"
 	"encoding/json"
 	"errors"
+	"github.com/go-resty/resty"
+	"github.com/joshuakwan/grafana-client/models"
 	"strconv"
 )
 
-func (c *Client) GetOrganization(orgName string) (*models.GrafanaOrganization, error) {
+/*
+Get current Organisation
+GET /api/org/
+*/
+func (c *Client) GetCurrentOrganization() (*models.GrafanaOrganization, error) {
+	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+		Get(c.GrafanaURL + "api/org/")
+	if err != nil {
+		return nil, err
+	}
+
+	var org *models.GrafanaOrganization
+	if err = json.Unmarshal(resp.Body(), &org); err != nil {
+		return nil, err
+	}
+	return org, nil
+}
+
+/*
+Get Organisation by Id
+GET /api/orgs/:orgId
+*/
+func (c *Client) GetOrganizationByID(orgID int) (*models.GrafanaOrganization, error) {
+	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
+		Get(c.GrafanaURL + "api/orgs/" + strconv.Itoa(orgID))
+	if err != nil {
+		return nil, err
+	}
+
+	var org *models.GrafanaOrganization
+	if err = json.Unmarshal(resp.Body(), &org); err != nil {
+		return nil, err
+	}
+	return org, nil
+}
+
+/*
+Get Organisation by Name
+GET /api/orgs/name/:orgName
+*/
+func (c *Client) GetOrganizationByName(orgName string) (*models.GrafanaOrganization, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
 		Get(c.GrafanaURL + "api/orgs/name/" + orgName)
 	if err != nil {
@@ -16,15 +56,17 @@ func (c *Client) GetOrganization(orgName string) (*models.GrafanaOrganization, e
 	}
 
 	var org *models.GrafanaOrganization
-	err = json.Unmarshal(resp.Body(), &org)
-	if err != nil {
+	if err = json.Unmarshal(resp.Body(), &org); err != nil {
 		return nil, err
 	}
-
 	return org, nil
 }
 
-func (c *Client) CreateOrganization(organization *models.GrafanaOrganization) (*models.OrganizationSuccessfulPostMessage, error) {
+/*
+Create Organisation
+POST /api/orgs
+*/
+func (c *Client) AdminCreateOrganization(organization *models.GrafanaOrganization) (*models.OrganizationSuccessfulPostMessage, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
 		SetBody(organization).Post(c.GrafanaURL + "api/orgs/")
 	if err != nil {
@@ -32,13 +74,234 @@ func (c *Client) CreateOrganization(organization *models.GrafanaOrganization) (*
 	}
 
 	var message models.OrganizationSuccessfulPostMessage
-	err = json.Unmarshal(resp.Body(), &message)
-	if err != nil {
+	if err = json.Unmarshal(resp.Body(), &message); err != nil {
 		return nil, err
 	}
-
 	return &message, nil
 }
+
+/*
+Update current Organisation
+PUT /api/org
+
+Example Request:
+
+PUT /api/org HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+
+{
+  "name":"Main Org."
+}
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+{"message":"Organization updated"}
+Get all users within the actual organisation
+GET /api/org/users
+
+Example Request:
+
+GET /api/org/users HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "orgId":1,
+    "userId":1,
+    "email":"admin@mygraf.com",
+    "login":"admin",
+    "role":"Admin"
+  }
+]
+Add a new user to the actual organisation
+POST /api/org/users
+
+Adds a global user to the actual organisation.
+
+Example Request:
+
+POST /api/org/users HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+
+{
+  "role": "Admin",
+  "loginOrEmail": "admin"
+}
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+{"message":"User added to organization"}
+Updates the given user
+PATCH /api/org/users/:userId
+
+Example Request:
+
+PATCH /api/org/users/1 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+
+{
+  "role": "Viewer",
+}
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+{"message":"Organization user updated"}
+Delete user in actual organisation
+DELETE /api/org/users/:userId
+
+Example Request:
+
+DELETE /api/org/users/1 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+{"message":"User removed from organization"}
+Organisations
+Search all Organisations
+GET /api/orgs
+
+Example Request:
+
+GET /api/orgs HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+Note: The api will only work when you pass the admin name and password to the request http url, like http://admin:admin@localhost:3000/api/orgs
+
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id":1,
+    "name":"Main Org."
+  }
+]
+Update Organisation
+PUT /api/orgs/:orgId
+
+Update Organisation, fields Address 1, Address 2, City are not implemented yet.
+
+Example Request:
+
+PUT /api/orgs/1 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+
+{
+  "name":"Main Org 2."
+}
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+{"message":"Organization updated"}
+Get Users in Organisation
+GET /api/orgs/:orgId/users
+
+Example Request:
+
+GET /api/orgs/1/users HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+Note: The api will only work when you pass the admin name and password to the request http url, like http://admin:admin@localhost:3000/api/orgs/1/users
+
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+[
+  {
+    "orgId":1,
+    "userId":1,
+    "email":"admin@mygraf.com",
+    "login":"admin",
+    "role":"Admin"
+  }
+]
+Add User in Organisation
+POST /api/orgs/:orgId/users
+
+Example Request:
+
+POST /api/orgs/1/users HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+
+{
+  "loginOrEmail":"user",
+  "role":"Viewer"
+}
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+{"message":"User added to organization"}
+Update Users in Organisation
+PATCH /api/orgs/:orgId/users/:userId
+
+Example Request:
+
+PATCH /api/orgs/1/users/2 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+
+{
+  "role":"Admin"
+}
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+{"message":"Organization user updated"}
+Delete User in Organisation
+DELETE /api/orgs/:orgId/users/:userId
+
+Example Request:
+
+DELETE /api/orgs/1/users/2 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+Example Response:
+
+HTTP/1.1 200
+Content-Type: application/json
+
+{"message":"User removed from organization"}
+*/
 
 func (c *Client) DeleteOrganization(orgID int) (*models.Message, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).

@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/joshuakwan/grafana-client/models"
-	"github.com/go-resty/resty"
 	"encoding/json"
+	"github.com/go-resty/resty"
+	"github.com/joshuakwan/grafana-client/models"
 	"strconv"
 )
 

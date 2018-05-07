@@ -1,14 +1,15 @@
 package api
 
 import (
-	"github.com/go-resty/resty"
-	"errors"
-	"github.com/joshuakwan/grafana-client/models"
 	"encoding/json"
+	"errors"
 	"strconv"
+
+	"github.com/go-resty/resty"
+	"github.com/joshuakwan/grafana-client/models"
 )
 
-// Settings
+// AdminGetSettings gets Grafana settings
 //   GET /api/admin/settings (basic auth)
 func (c *Client) AdminGetSettings() (string, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
@@ -19,7 +20,7 @@ func (c *Client) AdminGetSettings() (string, error) {
 	return string(resp.Body()), err
 }
 
-// Grafana Stats
+// AdminGetStats gets Grafana stats
 //   GET /api/admin/stats (basic auth)
 func (c *Client) AdminGetStats() (string, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
@@ -30,7 +31,7 @@ func (c *Client) AdminGetStats() (string, error) {
 	return string(resp.Body()), err
 }
 
-// Global Users
+// AdminCreateGlobalUser creates a new global user
 //   POST /api/admin/users (basic auth)
 func (c *Client) AdminCreateGlobalUser(user *models.User) (*models.UserSuccessfulCreateMessage, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
@@ -48,7 +49,7 @@ func (c *Client) AdminCreateGlobalUser(user *models.User) (*models.UserSuccessfu
 	return &message, nil
 }
 
-// Password for User
+// AdminChangePassword changes password for a user
 //   PUT /api/admin/users/:id/password (basic auth)
 func (c *Client) AdminChangePassword(userID int, password string) (*models.Message, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
@@ -70,7 +71,7 @@ func (c *Client) AdminChangePassword(userID int, password string) (*models.Messa
 // TODO Permissions
 //   PUT /api/admin/users/:id/permissions (basic auth)
 
-// Delete global User
+// AdminDeleteGlobalUser deletes a global user
 //   DELETE /api/admin/users/:id (basic auth)
 func (c *Client) AdminDeleteGlobalUser(userID int) (*models.Message, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
