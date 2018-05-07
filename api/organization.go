@@ -370,7 +370,7 @@ func (c *Client) CreateOrganizationAdminKey(orgID int) (*models.APIKeySuccessful
 	return &messageKey, nil
 }
 
-// AdminAddOrganizationUser adds a user to an organization 
+// AdminAddOrganizationUser adds a user to an organization
 // POST /api/orgs/:orgId/users
 // {
 //  "loginOrEmail":"user",

@@ -48,7 +48,7 @@ type PanelLegend struct {
 // Target encapsulates the target setting of a dashboard panel
 type Target struct {
 	RefID          string `json:"refId"`
-	Expr           string `json:"expr"'`
+	Expr           string `json:"expr"`
 	LegendFormat   string `json:"legendFormat"`
 	IntervalFactor int    `json:"intervalFactor"`
 }
