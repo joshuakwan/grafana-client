@@ -1,7 +1,7 @@
 package api
 
 var (
-	AuthHeader = "Authorization"
+	authHeader = "Authorization"
 )
 
 // Client encapsulates a Grafana API client

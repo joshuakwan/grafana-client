@@ -2,6 +2,7 @@ package models
 
 import "github.com/bitly/go-simplejson"
 
+// Meta stands for the meta data of a grafana dashboard
 type Meta struct {
 	Type        string `json:"type,omitempty"`
 	CanSave     bool   `json:"canSave,omitempty"`
@@ -14,13 +15,14 @@ type Meta struct {
 	UpdatedBy   string `json:"updatedBy,omitempty"`
 	CreatedBy   string `json:"createdBy,omitempty"`
 	Version     int    `json:"version,omitempty"`
-	HasAcl      bool   `json:"hasAcl,omitempty"`
+	HasACL      bool   `json:"hasAcl,omitempty"`
 	IsFolder    bool   `json:"isFolder,omitempty"`
 	FolderID    int    `json:"folderId,omitempty"`
 	FolderTitle string `json:"folderTitle,omitempty"`
 	FolderURL   string `json:"folderUrl,omitempty"`
 }
 
+// PanelGridPosition defines the panel grid position of a dashboard panel
 type PanelGridPosition struct {
 	H int `json:"h,omitempty"`
 	W int `json:"w,omitempty"`
@@ -28,6 +30,7 @@ type PanelGridPosition struct {
 	Y int `json:"y,omitempty"`
 }
 
+// PanelLegend is the legend settings of a dashboard panel
 type PanelLegend struct {
 	Avg          bool `json:"avg"`
 	Current      bool `json:"current"`
@@ -42,6 +45,7 @@ type PanelLegend struct {
 	RightSide    bool `json:"rightSide"`
 }
 
+// Target encapsulates the target setting of a dashboard panel
 type Target struct {
 	RefID          string `json:"refId"`
 	Expr           string `json:"expr"'`
@@ -49,11 +53,13 @@ type Target struct {
 	IntervalFactor int    `json:"intervalFactor"`
 }
 
+// PanelXAxis defines the X Axis position of a dashboard panel
 type PanelXAxis struct {
 	Show bool   `json:"show"`
 	Mode string `json:"mode"`
 }
 
+// PanelYAxis defines the Y Axis position of a dashboard panel
 type PanelYAxis struct {
 	Format  string `json:"format"`
 	LogBase int    `json:"logBase"`
@@ -63,6 +69,7 @@ type PanelYAxis struct {
 	Label   string `json:"label"`
 }
 
+// PanelTooltip stands for the settings of the tooltip of a dashboard panel
 type PanelTooltip struct {
 	MsResolution bool   `json:"msResolution"`
 	Shared       bool   `json:"shared"`
@@ -70,26 +77,31 @@ type PanelTooltip struct {
 	ValueType    string `json:"valueType"`
 }
 
+// PanelAlertConditionEvaluator holds the evaluator of a panel alert
 type PanelAlertConditionEvaluator struct {
 	Params []float64 `json:"params"`
 	Type   string    `json:"type"`
 }
 
+// PanelAlertConditionOperator holds the operator of a panel alert
 type PanelAlertConditionOperator struct {
 	Type string `json:"type"`
 }
 
+// PanelAlertConditionQuery holds the query of a panel alert
 type PanelAlertConditionQuery struct {
 	DatasourceID int      `json:"datasourceId"`
 	Model        *Target  `json:"model"`
 	Params       []string `json:"params"`
 }
 
+// PanelAlertConditionReducer holds the reduce condition of a panel alert
 type PanelAlertConditionReducer struct {
 	Type   string   `json:"type"`
 	Params []string `json:"params"`
 }
 
+// PanelAlertCondition defines the condition of triggering the alert
 type PanelAlertCondition struct {
 	Evaluator *PanelAlertConditionEvaluator `json:"evaluator"`
 	Operator  *PanelAlertConditionOperator  `json:"operator"`
@@ -97,6 +109,7 @@ type PanelAlertCondition struct {
 	Reducer   *PanelAlertConditionReducer   `json:"reducer"`
 }
 
+// PanelAlert is an alert object defined in the dashboard
 type PanelAlert struct {
 	Conditions          []*PanelAlertCondition `json:"conditions"`
 	ExecutionErrorState string                 `json:"executionErrorState"`
@@ -108,6 +121,7 @@ type PanelAlert struct {
 	Notifications       []*AlertNotification   `json:"notifications"`
 }
 
+// PanelThreshold is a threshold object defined in the dashboard
 type PanelThreshold struct {
 	ColorMode string `json:"colorMode,omitempty"`
 	Fill      bool   `json:"fill,omitempty"`
@@ -116,6 +130,7 @@ type PanelThreshold struct {
 	Value     int64  `json:"value,omitempty"`
 }
 
+// Panel stands for a dashboard panel
 type Panel struct {
 	Title           string             `json:"title,omitempty"`
 	Datasource      string             `json:"datasource,omitempty"`
@@ -144,17 +159,20 @@ type Panel struct {
 	Thresholds      []*PanelThreshold  `json:"thresholds,omitempty"`
 }
 
+// TemplateListCurrent stands for the current value of a variable
 type TemplateListCurrent struct {
 	Text  string `json:"text"`
 	Value string `json:"value"`
 }
 
+// TemplateListOption stands for the option of a TemplateList
 type TemplateListOption struct {
 	Selected bool   `json:"selected"`
 	Text     string `json:"text"`
 	Value    string `json:"value"`
 }
 
+// TemplateList defines a dashboard variable
 type TemplateList struct {
 	Name       string                `json:"name"`
 	Label      string                `json:"label"`
@@ -169,15 +187,18 @@ type TemplateList struct {
 	Options    []*TemplateListOption `json:"options"`
 }
 
+// Template is the variable settings of a dashboard
 type Template struct {
 	List []*TemplateList `json:"list"`
 }
 
+// Time defines the "from-to" property of a dashboard
 type Time struct {
 	From string `json:"from"`
 	To   string `json:"to"`
 }
 
+// Dashboard contains the configuration body of a grafana dashboard
 type Dashboard struct {
 	ID            int      `json:"id"`
 	Timezone      string   `json:"timezone"`
@@ -194,11 +215,13 @@ type Dashboard struct {
 	Version    int              `json:"version"`
 }
 
+// GrafanaDashboard consists of a meta object and a dashboard body object
 type GrafanaDashboard struct {
 	Meta      *Meta      `json:"meta"`
 	Dashboard *Dashboard `json:"dashboard"`
 }
 
+// SearchResult holds the dashboard search result
 type SearchResult struct {
 	ID          int      `json:"id"`
 	UID         string   `json:"uid"`
@@ -214,6 +237,7 @@ type SearchResult struct {
 	URI         string   `json:"uri"` // deprecated in Grafana v5.0
 }
 
+// TagResult holds the tag search result
 type TagResult struct {
 	Term  string `json:"term"`
 	Count int    `json:"count"`

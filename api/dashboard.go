@@ -14,7 +14,7 @@ import (
 412 – Precondition failed
 */
 func (c *Client) postDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		SetBody(dashboard).Post(c.GrafanaURL + "api/dashboards/db/")
 	if err != nil {
 		return nil, err
@@ -29,10 +29,12 @@ func (c *Client) postDashboard(dashboard *models.GrafanaDashboard) (*models.Dash
 	return &message, nil
 }
 
+// CreateDashboard creates a new dashboard
 func (c *Client) CreateDashboard(dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
 	return c.postDashboard(dashboard)
 }
 
+// CreateDashboardFromJSON creates a new dashboard from a JSON input
 func (c *Client) CreateDashboardFromJSON(jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
 	var dashboard models.GrafanaDashboard
 
@@ -47,6 +49,7 @@ func (c *Client) CreateDashboardFromJSON(jsonData []byte) (*models.DashboardSucc
 	return c.postDashboard(&dashboard)
 }
 
+// UpdateDashboard updates a dashboard
 func (c *Client) UpdateDashboard(uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
 	dashboard.Dashboard.UID = uid
 	targetDashboard, err := c.GetDashboardByUID(uid)
@@ -59,6 +62,7 @@ func (c *Client) UpdateDashboard(uid string, dashboard *models.GrafanaDashboard)
 	return c.postDashboard(dashboard)
 }
 
+// UpdateDashboardFromJSON updates a dashboard from a JSON input
 func (c *Client) UpdateDashboardFromJSON(uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
 	var dashboard models.GrafanaDashboard
 
@@ -70,8 +74,9 @@ func (c *Client) UpdateDashboardFromJSON(uid string, jsonData []byte) (*models.D
 	return c.UpdateDashboard(uid, &dashboard)
 }
 
+// GetDashboardByUID returns a dashboard by its UID
 func (c *Client) GetDashboardByUID(uid string) (*models.GrafanaDashboard, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/dashboards/uid/" + uid)
 	if err != nil {
 		return nil, err
@@ -85,11 +90,12 @@ func (c *Client) GetDashboardByUID(uid string) (*models.GrafanaDashboard, error)
 	return dashboard, nil
 }
 
+// GetDashboardUID returns the UID of a dashboard
 func (c *Client) GetDashboardUID(dashboardTitle string, dashboardFolderTitle string) (string, error) {
 	var results []*models.SearchResult
 	var uid string
 
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		SetQueryParam("query", dashboardTitle).
 		Get(c.GrafanaURL + "api/search/")
 	if err != nil {
@@ -109,8 +115,9 @@ func (c *Client) GetDashboardUID(dashboardTitle string, dashboardFolderTitle str
 	return uid, nil
 }
 
+// GetDashboardTags returns the tags of a dashboard
 func (c *Client) GetDashboardTags() ([]*models.TagResult, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/dashboards/tags")
 	if err != nil {
 		return nil, err
@@ -124,8 +131,9 @@ func (c *Client) GetDashboardTags() ([]*models.TagResult, error) {
 	return results, nil
 }
 
+// DeleteDashboardByUID deletes a dashboard by its UID
 func (c *Client) DeleteDashboardByUID(uid string) (*models.DashboardSuccessfulDeleteMessage, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Delete(c.GrafanaURL + "api/dashboards/uid/" + uid)
 	if err != nil {
 		return nil, err
@@ -163,10 +171,14 @@ func (c *Client) adminPostDashboard(orgID int, dashboard *models.GrafanaDashboar
 	return &message, nil
 }
 
+// AdminCreateDashboard creates a dashboard with the admin basic authentication
+// use with caution, and it might be removed in the future
 func (c *Client) AdminCreateDashboard(orgID int, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
 	return c.adminPostDashboard(orgID, dashboard)
 }
 
+// AdminCreateDashboardFromJSON creates a dashboard with the admin basic authentication from a JSON input
+// use with caution, and it might be removed in the future
 func (c *Client) AdminCreateDashboardFromJSON(orgID int, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
 	var dashboard models.GrafanaDashboard
 
@@ -182,6 +194,8 @@ func (c *Client) AdminCreateDashboardFromJSON(orgID int, jsonData []byte) (*mode
 	return c.adminPostDashboard(orgID, &dashboard)
 }
 
+// AdminUpdateDashboard updates a dashboard with the admin basic authentication
+// use with caution, and it might be removed in the future
 func (c *Client) AdminUpdateDashboard(orgID int, uid string, dashboard *models.GrafanaDashboard) (*models.DashboardSuccessfulPostMessage, error) {
 	dashboard.Dashboard.UID = uid
 	targetDashboard, err := c.GetDashboardByUID(uid)
@@ -194,6 +208,8 @@ func (c *Client) AdminUpdateDashboard(orgID int, uid string, dashboard *models.G
 	return c.adminPostDashboard(orgID, dashboard)
 }
 
+// AdminUpdateDashboardFromJSON updates a dashboard with the admin basic authentication from a JSON input
+// use with caution, and it might be removed in the future
 func (c *Client) AdminUpdateDashboardFromJSON(orgID int, uid string, jsonData []byte) (*models.DashboardSuccessfulPostMessage, error) {
 	var dashboard models.GrafanaDashboard
 
@@ -205,6 +221,8 @@ func (c *Client) AdminUpdateDashboardFromJSON(orgID int, uid string, jsonData []
 	return c.AdminUpdateDashboard(orgID, uid, &dashboard)
 }
 
+// AdminDeleteDashboardByUID deletes a dashboard with the admin basic authentication
+// use with caution, and it might be removed in the future
 func (c *Client) AdminDeleteDashboardByUID(orgID int, uid string) (*models.DashboardSuccessfulDeleteMessage, error) {
 	err := c.AdminSwitchOrganization(orgID)
 	if err != nil {

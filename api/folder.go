@@ -10,13 +10,11 @@ import (
 )
 
 /*
-Get all folders
+GetFolders returns all folders that the authenticated user has permission to view.
 GET /api/folders
-
-Returns all folders that the authenticated user has permission to view.
 */
 func (c *Client) GetFolders() ([]*models.Folder, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/folders")
 	if err != nil {
 		return nil, err
@@ -31,10 +29,8 @@ func (c *Client) GetFolders() ([]*models.Folder, error) {
 }
 
 /*
-Get folder by uid
+GetFolderByUID will return the folder given the folder uid.
 GET /api/folders/:uid
-
-Will return the folder given the folder uid.
 
 Status Codes:
 
@@ -44,7 +40,7 @@ Status Codes:
 404 – Folder not found
 */
 func (c *Client) GetFolderByUID(uid string) (*models.Folder, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/folders/" + uid)
 	if err != nil {
 		return nil, err
@@ -69,10 +65,8 @@ func (c *Client) GetFolderByUID(uid string) (*models.Folder, error) {
 }
 
 /*
-Create folder
+CreateFolder creates a new folder
 POST /api/folders
-
-Creates a new folder.
 
 Status Codes:
 
@@ -82,7 +76,7 @@ Status Codes:
 403 – Access Denied
 */
 func (c *Client) CreateFolder(title string) (*models.Folder, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		SetBody(fmt.Sprintf(`{"title":"%s"}`, title)).
 		SetHeader("Content-Type", "application/json").
 		Post(c.GrafanaURL + "api/folders")
@@ -175,10 +169,9 @@ Content-Length: 97
 */
 
 /*
-Delete folder
-DELETE /api/folders/:uid
+DeleteFolderByUID an existing folder identified by uid together with all dashboards stored in the folder, if any. This operation cannot be reverted.
 
-Deletes an existing folder identified by uid together with all dashboards stored in the folder, if any. This operation cannot be reverted.
+DELETE /api/folders/:uid
 
 Status Codes:
 
@@ -188,7 +181,7 @@ Status Codes:
 404 – Folder not found
 */
 func (c *Client) DeleteFolderByUID(uid string) (*models.Message, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Delete(c.GrafanaURL + "api/folders/" + uid)
 	if err != nil {
 		return nil, err
@@ -213,10 +206,8 @@ func (c *Client) DeleteFolderByUID(uid string) (*models.Message, error) {
 }
 
 /*
-Get folder by id
+GetFolderByID will return the folder identified by id.
 GET /api/folders/:id
-
-Will return the folder identified by id.
 
 Status Codes:
 
@@ -226,7 +217,7 @@ Status Codes:
 404 – Folder not found
 */
 func (c *Client) GetFolderByID(id int) (*models.Folder, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/folders/" + strconv.Itoa(id))
 	if err != nil {
 		return nil, err

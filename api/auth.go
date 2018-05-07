@@ -7,10 +7,10 @@ import (
 	"github.com/joshuakwan/grafana-client/models"
 )
 
-// Api Keys
+// AuthGetAPIKeys returns a list of API Keys
 //   GET /api/auth/keys
 func (c *Client) AuthGetAPIKeys() ([]*models.APIKey, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/auth/keys")
 	if err != nil {
 		return nil, err
@@ -24,10 +24,10 @@ func (c *Client) AuthGetAPIKeys() ([]*models.APIKey, error) {
 	return keys, nil
 }
 
-// Create API Key
+// AuthCreateAPIKey creates an API Key
 //   POST /api/auth/keys
 func (c *Client) AuthCreateAPIKey(keyName string, role string) (*models.APIKeySuccessfulCreateMessage, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		SetBody(fmt.Sprintf(`{"name":"%s", "role":"%s"}`, keyName, role)).
 		SetHeader("Content-Type", "application/json").
 		Post(c.GrafanaURL + "api/auth/keys")
@@ -43,10 +43,10 @@ func (c *Client) AuthCreateAPIKey(keyName string, role string) (*models.APIKeySu
 	return &message, nil
 }
 
-// Delete API Key
+// AuthDeleteAPIKey deletes an API Key
 //   DELETE /api/auth/keys/:id
 func (c *Client) AuthDeleteAPIKey(keyID int) (*models.Message, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Delete(c.GrafanaURL + fmt.Sprintf("api/auth/keys/%d", keyID))
 	if err != nil {
 		return nil, err

@@ -9,11 +9,11 @@ import (
 )
 
 /*
-Get current Organisation
+GetCurrentOrganization gets current Organisation
 GET /api/org/
 */
 func (c *Client) GetCurrentOrganization() (*models.GrafanaOrganization, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/org/")
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (c *Client) GetCurrentOrganization() (*models.GrafanaOrganization, error) {
 }
 
 /*
-Get Organisation by Id
+GetOrganizationByID gets Organisation by Id
 GET /api/orgs/:orgId
 */
 func (c *Client) GetOrganizationByID(orgID int) (*models.GrafanaOrganization, error) {
@@ -45,7 +45,7 @@ func (c *Client) GetOrganizationByID(orgID int) (*models.GrafanaOrganization, er
 }
 
 /*
-Get Organisation by Name
+GetOrganizationByName gets Organisation by Name
 GET /api/orgs/name/:orgName
 */
 func (c *Client) GetOrganizationByName(orgName string) (*models.GrafanaOrganization, error) {
@@ -63,7 +63,7 @@ func (c *Client) GetOrganizationByName(orgName string) (*models.GrafanaOrganizat
 }
 
 /*
-Create Organisation
+AdminCreateOrganization creates Organisation
 POST /api/orgs
 */
 func (c *Client) AdminCreateOrganization(organization *models.GrafanaOrganization) (*models.OrganizationSuccessfulPostMessage, error) {
@@ -303,6 +303,7 @@ Content-Type: application/json
 {"message":"User removed from organization"}
 */
 
+// DeleteOrganization deletes an organization
 func (c *Client) DeleteOrganization(orgID int) (*models.Message, error) {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
 		Delete(c.GrafanaURL + "api/orgs/" + strconv.Itoa(orgID))
@@ -319,6 +320,7 @@ func (c *Client) DeleteOrganization(orgID int) (*models.Message, error) {
 	return &message, nil
 }
 
+// AdminSwitchOrganization switch the admin to another organization
 func (c *Client) AdminSwitchOrganization(orgID int) error {
 	resp, err := resty.R().SetBasicAuth(c.AdminUser, c.AdminPassword).
 		Post(c.GrafanaURL + "api/user/using/" + strconv.Itoa(orgID))
@@ -339,6 +341,7 @@ func (c *Client) AdminSwitchOrganization(orgID int) error {
 	return nil
 }
 
+// CreateOrganizationAdminKey creates an admin API key of an organization
 // curl -X POST http://admin:admin@localhost:3000/api/user/using/<id of new org>
 // curl -X POST
 //      -H "Content-Type: application/json"
@@ -367,6 +370,7 @@ func (c *Client) CreateOrganizationAdminKey(orgID int) (*models.APIKeySuccessful
 	return &messageKey, nil
 }
 
+// AdminAddOrganizationUser adds a user to an organization 
 // POST /api/orgs/:orgId/users
 // {
 //  "loginOrEmail":"user",

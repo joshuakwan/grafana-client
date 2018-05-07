@@ -1,5 +1,6 @@
 package models
 
+// Folder is a grafana folder
 type Folder struct {
 	ID        int    `json:"id"`
 	UID       string `json:"uid"`

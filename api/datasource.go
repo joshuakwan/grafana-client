@@ -7,8 +7,9 @@ import (
 	"strconv"
 )
 
+// GetAllDatasources returns all datasources
 func (c *Client) GetAllDatasources() ([]*models.Datasource, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/datasources")
 	if err != nil {
 		return nil, err
@@ -22,8 +23,9 @@ func (c *Client) GetAllDatasources() ([]*models.Datasource, error) {
 	return datasources, nil
 }
 
+// GetDatasourceByID returns a datasource by its ID
 func (c *Client) GetDatasourceByID(datasourceID int) (*models.Datasource, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/datasources/" + strconv.Itoa(datasourceID))
 	if err != nil {
 		return nil, err
@@ -37,8 +39,9 @@ func (c *Client) GetDatasourceByID(datasourceID int) (*models.Datasource, error)
 	return datasource, nil
 }
 
+// GetDatasourceByName returns a datasource by its name
 func (c *Client) GetDatasourceByName(datasourceName string) (*models.Datasource, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/datasources/name/" + datasourceName)
 	if err != nil {
 		return nil, err
@@ -52,8 +55,9 @@ func (c *Client) GetDatasourceByName(datasourceName string) (*models.Datasource,
 	return datasource, nil
 }
 
+// GetDatasourceIDByName returns the ID of a datasource by its name
 func (c *Client) GetDatasourceIDByName(datasourceName string) (int, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Get(c.GrafanaURL + "api/datasources/id/" + datasourceName)
 	if err != nil {
 		return -1, err
@@ -67,8 +71,9 @@ func (c *Client) GetDatasourceIDByName(datasourceName string) (int, error) {
 	return datasource.ID, nil
 }
 
+// CreateDatasource creates a datasource
 func (c *Client) CreateDatasource(datasource *models.Datasource) (*models.DatasourceMessage, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		SetBody(datasource).Post(c.GrafanaURL + "api/datasources")
 	if err != nil {
 		return nil, err
@@ -82,8 +87,9 @@ func (c *Client) CreateDatasource(datasource *models.Datasource) (*models.Dataso
 	return &message, nil
 }
 
+// UpdateDatasource updates a datasource
 func (c *Client) UpdateDatasource(datasourceID int, datasource *models.Datasource) (*models.DatasourceMessage, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		SetBody(datasource).Put(c.GrafanaURL + "api/datasources/" + strconv.Itoa(datasourceID))
 	if err != nil {
 		return nil, err
@@ -97,8 +103,9 @@ func (c *Client) UpdateDatasource(datasourceID int, datasource *models.Datasourc
 	return &message, nil
 }
 
+// DeleteDatasourceByID deletes a datasource by its ID
 func (c *Client) DeleteDatasourceByID(datasourceID int) (*models.Message, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Delete(c.GrafanaURL + "api/datasources/" + strconv.Itoa(datasourceID))
 
 	if err != nil {
@@ -113,8 +120,9 @@ func (c *Client) DeleteDatasourceByID(datasourceID int) (*models.Message, error)
 	return &message, nil
 }
 
+// DeleteDatasourceByName deletes a datasource by its name
 func (c *Client) DeleteDatasourceByName(datasourceName string) (*models.Message, error) {
-	resp, err := resty.R().SetHeader(AuthHeader, c.BearerToken).
+	resp, err := resty.R().SetHeader(authHeader, c.BearerToken).
 		Delete(c.GrafanaURL + "api/datasources/name/" + datasourceName)
 
 	if err != nil {
@@ -129,7 +137,8 @@ func (c *Client) DeleteDatasourceByName(datasourceName string) (*models.Message,
 	return &message, nil
 }
 
-// TODO
+// AdminCreateDatasource creates a datasource with the admin basic authentication
+// use with caution, and it might be removed in the future
 func (c *Client) AdminCreateDatasource(
 	orgID int,
 	datasource *models.Datasource) (*models.DatasourceMessage, error) {
